@@ -1,0 +1,12 @@
+{
+  "name": "distributed-chat-client",
+  "version": "1.0.0",
+  "description": "Cliente do chat distribuído",
+  "main": "client.js",
+  "scripts": {
+    "start": "node client.js"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.6.1"
+  }
+}
