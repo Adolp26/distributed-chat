@@ -1,0 +1,37 @@
+services:
+  server:
+    build: ./server
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    networks:
+      - chat-network
+
+  client1:
+    build: ./client
+    environment:
+      - SERVER_URL=http://server:3000
+      - CLIENT_NAME=Cliente1
+    depends_on:
+      - server
+    networks:
+      - chat-network
+    stdin_open: true
+    tty: true
+
+  client2:
+    build: ./client
+    environment:
+      - SERVER_URL=http://server:3000
+      - CLIENT_NAME=Cliente2
+    depends_on:
+      - server
+    networks:
+      - chat-network
+    stdin_open: true
+    tty: true
+
+networks:
+  chat-network:
+    driver: bridge
