@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Distribuído</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        #messages {
+            height: 400px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            background-color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .own-message {
+            background-color: #e3f2fd;
+            text-align: right;
+        }
+        .other-message {
+            background-color: #f5f5f5;
+        }
+        #clients {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat Distribuído</h1>
+    
+    <div id="clients">
+        <h3>Clientes Conectados</h3>
+        <ul id="clientList"></ul>
+    </div>
+    
+    <div id="messages"></div>
+    
+    <div>
+        <input type="text" id="messageInput" placeholder="Digite sua mensagem...">
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const clientName = `WebUser-${Math.floor(Math.random() * 1000)}`;
+        
+        socket.on('connect', () => {
+            socket.emit('register', {
+                name: clientName,
+                machine: 'Web Browser'
+            });
+        });
+        
+        socket.on('new-message', (message) => {
+            displayMessage(message);
+        });
+        
+        socket.on('message-history', (messages) => {
+            messages.forEach(msg => displayMessage(msg));
+        });
+        
+        socket.on('clients-update', (clients) => {
+            const clientList = document.getElementById('clientList');
+            clientList.innerHTML = '';
+            clients.forEach(client => {
+                const li = document.createElement('li');
+                li.textContent = `${client.name} @ ${client.machine}`;
+                clientList.appendChild(li);
+            });
+        });
+        
+        function displayMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = message.sender === clientName ? 'message own-message' : 'message other-message';
+            messageDiv.innerHTML = `<strong>${message.sender}@${message.machine}:</strong> ${message.text}`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            if (input.value.trim()) {
+                socket.emit('message', {
+                    text: input.value,
+                    sender: clientName,
+                    machine: 'Web Browser'
+                });
+                displayMessage({
+                    text: input.value,
+                    sender: clientName,
+                    machine: 'Web Browser'
+                });
+                input.value = '';
+            }
+        }
+        
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
