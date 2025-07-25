@@ -282,7 +282,7 @@ distributed-chat/
 - ✅ Reconexão automática
 - ✅ Identificação de máquina/cliente
 
-## 🔄 Próximos Passos (quando tiver mais)
+## 🔄 Próximos Passos (quando houver mais tempo livre)
 
 1. **Persistência**: Adicionar banco de dados (MongoDB/Redis)
 2. **Autenticação**: Sistema de login
